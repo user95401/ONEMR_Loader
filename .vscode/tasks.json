@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "curly-eureka: configure",
+			"type": "shell",
+			"command": "cmake -B out -A win32",
+			"problemMatcher": []
+		},
+		{
+			"label": "curly-eureka: build",
+			"type": "shell",
+			"command": "cmake --build out --config Release",
+			"problemMatcher": []
+		}
+	]
+}

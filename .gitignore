@@ -1,0 +1,6 @@
+#ueaa
+.vs
+.git
+build
+out
+minhook.x32.lib
