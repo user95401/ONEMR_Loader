@@ -2,6 +2,12 @@
 
 ${description}
 
+Patch Exceptions:
+> if contains word in dll root patch
+- geode
+- minhook
+- MinHook
+
 ## <co>Converted for Geode</c>
 ---
 
