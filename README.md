@@ -4,6 +4,12 @@ load dlls in all ur game directory
 
 Made with curly-eureka, only for Windows.
 
+### Patch Exceptions:
+> if contains word in dll root patch
+- geode
+- minhook
+- MinHook
+
 ## Install for geode
 put .geode file to GeometryDash/geode/mods
 
