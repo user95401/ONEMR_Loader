@@ -2,7 +2,7 @@
 
 ${description}
 
-Patch Exceptions:
+### Patch Exceptions:
 > if contains word in dll root patch
 - geode
 - minhook
