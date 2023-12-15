@@ -6,6 +6,7 @@
 	"developer": "${developer}",
 	"description": "${description}",
 	"repository": "${repository}",
+	"early-load": true,
 	"issues": {
 		"url": "${issues_url}",
 		"info": "${issues_info}"

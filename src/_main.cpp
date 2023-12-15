@@ -2,20 +2,12 @@
 #include "hooks.hpp"
 
 using namespace cocos2d;
+using namespace gd;
 
 int ModsLoaded = 0;
+bool afterLoad = false;
 
-void(__thiscall* LoadingLayer_loadAssets)(gd::LoadingLayer*);
-void __fastcall LoadingLayer_loadAssets_H(gd::LoadingLayer* self, void*) {
-    self->removeChildByTag(938);
-    CCLabelTTF* ModsCountLabel = CCLabelTTF::create(("ONEMR_Loader: " + std::to_string(ModsLoaded) + " dlls loaded").c_str(), "arial", 6.000f);
-    ModsCountLabel->setAnchorPoint(CCPointZero);
-    ModsCountLabel->setOpacity(35);
-    self->addChild(ModsCountLabel, 10, 938);
-    LoadingLayer_loadAssets(self);
-}
-
-DWORD WINAPI PROCESS_ATTACH(void* hModule) {
+DWORD WINAPI LoadMods(void* hModule) {
     ModUtils::log("Crawling...");
     for (const auto& entry : std::filesystem::recursive_directory_iterator(std::filesystem::current_path())) {
         //ModUtils::log(entry.path().extension().string()); .dll
@@ -36,8 +28,40 @@ DWORD WINAPI PROCESS_ATTACH(void* hModule) {
         }
     }
     ModUtils::log("Loading libs reached end!");
-    MH_SafeInitialize();
-    HOOK(gd::base + 0x18C8E0, LoadingLayer_loadAssets);
+}
+
+void(__thiscall* LoadingLayer_loadAssets)(LoadingLayer*);//0x18C8E0
+void __fastcall LoadingLayer_loadAssets_H(LoadingLayer* self, void*) {
+    LoadingLayer_loadAssets(self);
+    afterLoad = true;
+    self->removeChildByTag(938);
+    CCLabelTTF* ModsCountLabel = CCLabelTTF::create(("ONEMR_Loader: " + std::to_string(ModsLoaded) + " dlls loaded").c_str(), "arial", 6.000f);
+    ModsCountLabel->setAnchorPoint(CCPointZero);
+    ModsCountLabel->setOpacity(32);
+    self->addChild(ModsCountLabel, 10, 938);
+    twoTimesVoidCallEscapeByParrentNode(self);
+    if (self->m_bFromRefresh) LoadMods(0);
+}
+
+bool(__thiscall* MenuLayer_init)(MenuLayer*);//0x1907b0
+bool __fastcall MenuLayer_init_H(MenuLayer* self, void*) {
+    MenuLayer_init(self);
+    twoTimesBoolCallEscapeByParrentNode(self);
+    if (!afterLoad) return true;
+    else afterLoad = false;
+    CCLabelTTF* ModsCountLabel = CCLabelTTF::create(("ONEMR_Loader: " + std::to_string(ModsLoaded) + " dlls loaded").c_str(), "arial", 6.000f);
+    ModsCountLabel->setAnchorPoint(CCPointZero);
+    ModsCountLabel->setOpacity(32);
+    ModsCountLabel->runAction(CCFadeTo::create(5.0f, 0));
+    self->addChild(ModsCountLabel, 10, 938);
+    return true;
+}
+
+DWORD WINAPI PROCESS_ATTACH(void* hModule) {
+    MH_Initialize();
+    HOOK(base + 0x18C8E0, LoadingLayer_loadAssets);
+    HOOK(base + 0x1907b0, MenuLayer_init);
+    LoadMods(hModule);
     return 0;
 }
 
