@@ -42,10 +42,9 @@ void __fastcall LoadingLayer_loadAssets(CCLayer* self, void* edx) {
         "ONEMR_Loader: {} dlls loaded{}", 
         ModsLoaded, 
         ModsLoadedList == "" ? "" : ("\n" + ModsLoadedList)
-    ).c_str(), "Arial", 12.000f);
+    ).c_str(), "Arial", 4.800f);
     ModsCountLabel->setHorizontalAlignment(CCTextAlignment::kCCTextAlignmentLeft);
-    ModsCountLabel->setAnchorPoint(CCPointZero);
-    ModsCountLabel->setScale(0.3f);
+    ModsCountLabel->setAnchorPoint({-0.01f, -0.1f});
     //ModsCountLabel->setOpacity(28);
     ModsCountLabel->runAction(CCFadeTo::create(0.1f, 32));//wow gd 2.2 have do smth with opacity stuff
     self->addChild(ModsCountLabel, 10, 938);/**/

@@ -28,9 +28,9 @@ add_library(${PROJECT_NAME} SHARED ${SRC} ${CURLY_EUREKA_SRC})
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/geode geode-build)
 
 #libcurl distributing zip makeup
-if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/ONEMR_Loader.dll) #can be deleted so escape "not found"
+if(EXISTS ${LIBRARY_OUTPUT_PATH}/ONEMR_Loader.dll) #can be deleted so escape "not found"
     #ONEMR_Loader
-    file(COPY ${CMAKE_CURRENT_LIST_DIR}/ONEMR_Loader.dll
+    file(COPY ${LIBRARY_OUTPUT_PATH}/ONEMR_Loader.dll
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/copy.to.game.folder/)
     #libcurl
     file(COPY ${CMAKE_CURRENT_LIST_DIR}/libcurl.dll
