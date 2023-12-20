@@ -1,10 +1,11 @@
-﻿#include "mod_utils.hpp"
-#include "hooks.hpp"
+﻿#include "ModUtils.hpp"
+#include "HooksUtils.hpp"
 
 using namespace cocos2d;
 using namespace gd;
 
 int ModsLoaded = 0;
+std::string ModsLoadedList = "";
 bool afterLoad = false;
 
 DWORD WINAPI LoadMods(void* hModule) {
@@ -23,45 +24,64 @@ DWORD WINAPI LoadMods(void* hModule) {
             if (!hModule) ModUtils::log("Failed to load library \"" + entry.path().relative_path().string() + "\" .");
             else {
                 ModUtils::log("Loaded library \"" + entry.path().relative_path().string() + "\"!");
-                ModsLoaded++;
+                ++ModsLoaded;
+                ModsLoadedList = ModsLoadedList + ((ModsLoadedList == "" ? "" : ", ") + entry.path().filename().string());
             }
         }
     }
     ModUtils::log("Loading libs reached end!");
 }
 
-void(__thiscall* LoadingLayer_loadAssets)(LoadingLayer*);//0x18C8E0
-void __fastcall LoadingLayer_loadAssets_H(LoadingLayer* self, void*) {
-    LoadingLayer_loadAssets(self);
+//0x272390
+void __fastcall LoadingLayer_loadAssets(CCLayer* self, void* edx) {
+    MappedHooks::getOriginal(LoadingLayer_loadAssets)(self, edx);
+    if (CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.NoInfo")) return self->removeChildByTag(938);
     afterLoad = true;
     self->removeChildByTag(938);
-    CCLabelTTF* ModsCountLabel = CCLabelTTF::create(("ONEMR_Loader: " + std::to_string(ModsLoaded) + " dlls loaded").c_str(), "arial", 6.000f);
+    CCLabelTTF* ModsCountLabel = CCLabelTTF::create(std::format(
+        "ONEMR_Loader: {} dlls loaded{}", 
+        ModsLoaded, 
+        ModsLoadedList == "" ? "" : ("\n" + ModsLoadedList)
+    ).c_str(), "Arial", 12.000f);
+    ModsCountLabel->setHorizontalAlignment(CCTextAlignment::kCCTextAlignmentLeft);
     ModsCountLabel->setAnchorPoint(CCPointZero);
-    ModsCountLabel->setOpacity(32);
-    self->addChild(ModsCountLabel, 10, 938);
-    twoTimesVoidCallEscapeByParrentNode(self);
-    if (self->m_bFromRefresh) LoadMods(0);
+    ModsCountLabel->setScale(0.3f);
+    //ModsCountLabel->setOpacity(28);
+    ModsCountLabel->runAction(CCFadeTo::create(0.1f, 32));//wow gd 2.2 have do smth with opacity stuff
+    self->addChild(ModsCountLabel, 10, 938);/**/
 }
 
-bool(__thiscall* MenuLayer_init)(MenuLayer*);//0x1907b0
-bool __fastcall MenuLayer_init_H(MenuLayer* self, void*) {
-    MenuLayer_init(self);
-    twoTimesBoolCallEscapeByParrentNode(self);
-    if (!afterLoad) return true;
-    else afterLoad = false;
-    CCLabelTTF* ModsCountLabel = CCLabelTTF::create(("ONEMR_Loader: " + std::to_string(ModsLoaded) + " dlls loaded").c_str(), "arial", 6.000f);
-    ModsCountLabel->setAnchorPoint(CCPointZero);
-    ModsCountLabel->setOpacity(32);
-    ModsCountLabel->runAction(CCFadeTo::create(5.0f, 0));
-    self->addChild(ModsCountLabel, 10, 938);
-    return true;
-}
+//590792
+//bool __fastcall MenuLayer_init(CCLayer* self, void* edx) {
+//    CCMessageBox(__FUNCTION__, __FUNCTION__);
+//    MappedHooks::getOriginal(MenuLayer_init)(self, edx);
+//    self->setRotation(12);
+//    twoTimesBoolCallEscapeByParrentNode(self);
+//    if (!afterLoad) return true;
+//    else afterLoad = false;
+//    CCLabelTTF* ModsCountLabel = CCLabelTTF::create(std::format("ONEMR_Loader: {} dlls loaded", ModsLoaded).c_str(), "Arial", 6.000f);
+//    ModsCountLabel->setAnchorPoint(CCPointZero);
+//    //ModsCountLabel->setOpacity(32);
+//    ModsCountLabel->runAction(CCFadeTo::create(5.0f, 0));
+//    self->addChild(ModsCountLabel, 10, 938);
+//    return true;
+//}
 
 DWORD WINAPI PROCESS_ATTACH(void* hModule) {
     MH_Initialize();
-    HOOK(base + 0x18C8E0, LoadingLayer_loadAssets);
-    HOOK(base + 0x1907b0, MenuLayer_init);
+    MappedHooks::registerHook(base + 2565008, LoadingLayer_loadAssets);
+    //MappedHooks::registerHook(base + 0x276700, MenuLayer_init);
     LoadMods(hModule);
+    if (!CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.NoInfo") && !CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.AddInfo")) {
+        if (MessageBoxExA(nullptr, "Enable showing info?", "ONEMR_Loader", MB_ICONQUESTION | MB_YESNO, LANG_ENGLISH) == IDYES) {
+            std::remove("ONEMR_Loader.NoInfo");
+            std::ofstream("ONEMR_Loader.AddInfo");
+        }
+        else {
+            std::ofstream("ONEMR_Loader.NoInfo");
+            std::remove("ONEMR_Loader.AddInfo");
+        }
+    }
     return 0;
 }
 

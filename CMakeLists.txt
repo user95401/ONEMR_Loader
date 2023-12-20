@@ -7,22 +7,22 @@ cmake_policy(SET CMP0057 NEW)
 
 project ("ONEMR_Loader")
 set(developer "user95401")
-set(version "v1.1.0")
+set(version "v1.2.0")
 set(description "load dlls in all ur game directory")
 set(repository "https://github.com/user95401/ONEMR_Loader")
 set(issues_url "https://discord.gg/89VGJH6QQg")
 set(issues_info "U can write about it on <cb>user666's discord...</c>")
-set(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_LIST_DIR}") # dll output
+set(LIBRARY_OUTPUT_PATH "D:\\Games\\user666\\Geometry Dash 2.2 [modloader, unlock mod, steam crack]\\") # dll output
 set(GEODE_MOD_OUTPUT_PATH "D:\\Games\\user666\\Geometry.Dash.v07.24.2021\\geode\\mods") # geode mod output
 
 #curly-eureka
 include("C:\\Users\\Lenovo\\source\\curly-eureka\\CURLY-EUREKA-INCL.cmake")
 
 #mod
-file(GLOB_RECURSE src
+file(GLOB_RECURSE SRC
 src/*
 )
-add_library(${PROJECT_NAME} SHARED ${src} ${curly_eureka_src})
+add_library(${PROJECT_NAME} SHARED ${SRC} ${CURLY_EUREKA_SRC})
 
 #geode-makeup
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/geode geode-build)
