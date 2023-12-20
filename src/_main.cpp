@@ -40,11 +40,12 @@ void __fastcall LoadingLayer_loadAssets(CCLayer* self, void* edx) {
     self->removeChildByTag(938);
     CCLabelTTF* ModsCountLabel = CCLabelTTF::create(std::format(
         "ONEMR_Loader: {} dlls loaded{}", 
-        ModsLoaded, 
+        ModsLoaded,
         ModsLoadedList == "" ? "" : ("\n" + ModsLoadedList)
-    ).c_str(), "Arial", 4.800f);
+    ).c_str(), "Arial", 12.000f);
     ModsCountLabel->setHorizontalAlignment(CCTextAlignment::kCCTextAlignmentLeft);
     ModsCountLabel->setAnchorPoint({-0.01f, -0.1f});
+    ModsCountLabel->setScale(0.4f);
     //ModsCountLabel->setOpacity(28);
     ModsCountLabel->runAction(CCFadeTo::create(0.1f, 32));//wow gd 2.2 have do smth with opacity stuff
     self->addChild(ModsCountLabel, 10, 938);/**/
@@ -85,7 +86,8 @@ DWORD WINAPI PROCESS_ATTACH(void* hModule) {
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
-    if (ul_reason_for_call == DLL_PROCESS_ATTACH)
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
         CreateThread(0, 0, PROCESS_ATTACH, hModule, 0, 0);
+    }
     return TRUE;
 }
