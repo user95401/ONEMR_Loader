@@ -9,6 +9,9 @@ Made with curly-eureka, only for Windows.
 - geode
 - minhook
 - MinHook
+- websockets.dll
+- msvcp
+- msvcr
 
 ## Install for geode
 put .geode file to GeometryDash/geode/mods

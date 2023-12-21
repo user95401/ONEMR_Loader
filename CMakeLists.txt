@@ -7,7 +7,7 @@ cmake_policy(SET CMP0057 NEW)
 
 project ("ONEMR_Loader")
 set(developer "user95401")
-set(version "v1.2.0")
+set(version "v1.2.1")
 set(description "load dlls in all ur game directory")
 set(repository "https://github.com/user95401/ONEMR_Loader")
 set(issues_url "https://discord.gg/89VGJH6QQg")

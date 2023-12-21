@@ -15,8 +15,11 @@ DWORD WINAPI LoadMods(void* hModule) {
         bool loadit = false;
         if (entry.path().extension().string() == std::string(".dll")) loadit = true;//is dll
         if (strstr(entry.path().string().c_str(), "geode")) loadit = false;//in geode/unzipped
-        if (strstr(entry.path().string().c_str(), "minhook")) loadit = false;//minhook.
-        if (strstr(entry.path().string().c_str(), "MinHook")) loadit = false;//MinHook.
+        if (strstr(entry.path().string().c_str(), "minhook")) loadit = false;//minhook
+        if (strstr(entry.path().string().c_str(), "MinHook")) loadit = false;//MinHook
+        if (strstr(entry.path().string().c_str(), "websockets.dll")) loadit = false;//websockets.dll
+        if (strstr(entry.path().string().c_str(), "msvcp")) loadit = false;//msvcp
+        if (strstr(entry.path().string().c_str(), "msvcr")) loadit = false;//msvcr
         if (GetModuleHandleA(entry.path().string().c_str())) loadit = false;
         if (loadit) {
             Sleep(10);
