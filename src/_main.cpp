@@ -1,5 +1,6 @@
 ﻿#include "ModUtils.hpp"
 #include "HooksUtils.hpp"
+#include<fstream>
 
 using namespace cocos2d;
 using namespace gd;
@@ -22,7 +23,7 @@ DWORD WINAPI LoadMods(void* hModule) {
         if (strstr(entry.path().string().c_str(), "msvcr")) loadit = false;//msvcr
         if (GetModuleHandleA(entry.path().string().c_str())) loadit = false;
         if (loadit) {
-            Sleep(10);
+            //Sleep(10);justwhy
             HMODULE hModule = LoadLibraryA(entry.path().string().c_str());
             if (!hModule) ModUtils::log("Failed to load library \"" + entry.path().relative_path().string() + "\" .");
             else {
@@ -38,6 +39,16 @@ DWORD WINAPI LoadMods(void* hModule) {
 //0x272390
 void __fastcall LoadingLayer_loadAssets(CCLayer* self, void* edx) {
     MappedHooks::getOriginal(LoadingLayer_loadAssets)(self, edx);
+    if (!CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.NoInfo") && !CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.AddInfo")) {
+        if (MessageBoxExA(nullptr, "Enable showing info?", "ONEMR_Loader", MB_ICONQUESTION | MB_YESNO, LANG_ENGLISH) == IDYES) {
+            std::remove("ONEMR_Loader.NoInfo");
+            std::ofstream("ONEMR_Loader.AddInfo");
+        }
+        else {
+            std::ofstream("ONEMR_Loader.NoInfo");
+            std::remove("ONEMR_Loader.AddInfo");
+        }
+    }
     if (CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.NoInfo")) return self->removeChildByTag(938);
     afterLoad = true;
     self->removeChildByTag(938);
@@ -49,7 +60,8 @@ void __fastcall LoadingLayer_loadAssets(CCLayer* self, void* edx) {
     ModsCountLabel->setHorizontalAlignment(CCTextAlignment::kCCTextAlignmentLeft);
     ModsCountLabel->setAnchorPoint({-0.01f, -0.1f});
     ModsCountLabel->setScale(0.4f);
-    //ModsCountLabel->setOpacity(28);
+    ModsCountLabel->setOpacity(68);
+    ModsCountLabel->setBlendFunc({ GL_SRC_ALPHA, GL_ONE }/*that is additive blend*/);
     ModsCountLabel->runAction(CCFadeTo::create(0.1f, 32));//wow gd 2.2 have do smth with opacity stuff
     self->addChild(ModsCountLabel, 10, 938);/**/
 }
@@ -70,27 +82,11 @@ void __fastcall LoadingLayer_loadAssets(CCLayer* self, void* edx) {
 //    return true;
 //}
 
-DWORD WINAPI PROCESS_ATTACH(void* hModule) {
-    MH_Initialize();
-    MappedHooks::registerHook(base + 2565008, LoadingLayer_loadAssets);
-    //MappedHooks::registerHook(base + 0x276700, MenuLayer_init);
-    LoadMods(hModule);
-    if (!CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.NoInfo") && !CCFileUtils::sharedFileUtils()->isFileExist("ONEMR_Loader.AddInfo")) {
-        if (MessageBoxExA(nullptr, "Enable showing info?", "ONEMR_Loader", MB_ICONQUESTION | MB_YESNO, LANG_ENGLISH) == IDYES) {
-            std::remove("ONEMR_Loader.NoInfo");
-            std::ofstream("ONEMR_Loader.AddInfo");
-        }
-        else {
-            std::ofstream("ONEMR_Loader.NoInfo");
-            std::remove("ONEMR_Loader.AddInfo");
-        }
-    }
-    return 0;
-}
-
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-        CreateThread(0, 0, PROCESS_ATTACH, hModule, 0, 0);
+        LoadMods(hModule);
+        MH_Initialize();
+        MappedHooks::registerHook(base + 2565008, LoadingLayer_loadAssets);
     }
     return TRUE;
 }
