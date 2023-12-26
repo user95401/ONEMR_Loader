@@ -1,6 +1,6 @@
 1 VERSIONINFO
-FILEVERSION 1, 2, 2, 0
-PRODUCTVERSION 1, 2, 2, 0
+FILEVERSION 1, 3, 0, 0
+PRODUCTVERSION 1, 3, 0, 0
 FILEOS 0x40004
 FILETYPE 0x2
 {
@@ -11,7 +11,7 @@ FILETYPE 0x2
 			VALUE "ProductName", "ONEMR_Loader"
 			VALUE "CompanyName", "user95401"
 			VALUE "LegalCopyright", "user666's original"
-			VALUE "FileDescription", "load dlls in all ur game directory"
+			VALUE "FileDescription", "gd 2.2 mod that load dlls in all ur game directory"
 			VALUE "OriginalFilename", "ONEMR_Loader.dll"
 		}
 	}

@@ -8,15 +8,15 @@ cmake_policy(SET CMP0057 NEW)
 
 project ("ONEMR_Loader")
 set(developer "user95401")
-set(description "load dlls in all ur game directory")
-set(lib_output "D:/Games/user666/2.2 PC GDPS but actually that is lol/") # post build copy
+set(description "gd 2.2 mod that load dlls in all ur game directory")
+set(lib_output "D:\\Games\\user666\\2.2 PC GDPS but actually that is lol\\") # post build copy
 
 #curly-eureka
 set(GAME_VERSION "2.200")
 include("C:\\Users\\Lenovo\\source\\curly-eureka\\CURLY-EUREKA-INCL.cmake")# "\" must be escaped by \\
 
 #version
-set(FILEVERSION "1, 2, 2, 0")
+set(FILEVERSION "1, 3, 0, 0")
 set(LegalCopyright "user666's original")
 configure_file("Version.rc" "../../../src/Version.rc")
 
