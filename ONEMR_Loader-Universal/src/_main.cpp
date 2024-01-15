@@ -1,11 +1,10 @@
 ﻿#include "ModUtils.hpp"
 #include "HooksUtils.hpp"
 
+#include "imgui-hook.hpp"
+
 using namespace cocos2d;
 using namespace gd;
-
-#include <imgui-hook.hpp>
-#include <imgui.h>
 
 #include <fstream>
 
@@ -30,14 +29,12 @@ void CreateInfoSettingFile(bool AddInfo) {
 }
 
 namespace ImGuiMod {
-
     bool Hiden;
     void HideUI() {
         Hiden = true;
     };
-
     namespace ModsLoadedText {
-
+        bool Showing;
         bool Hiden;
         void Show() {
             Hiden = false;
@@ -45,7 +42,6 @@ namespace ImGuiMod {
         void Hide() {
             Hiden = true;
         };
-
         int DelayedHideMs;
         int FadeOutRate;
         ImColor FadeOutCol;
@@ -68,11 +64,16 @@ namespace ImGuiMod {
         void FadeOut(int Delay, int Rate, void* hModule) {
             DelayedHideMs = Delay;
             FadeOutRate = Rate;
+            FadeOutCol = ImColor(255, 255, 255, 255);
             CreateThread(nullptr, 0, FadeOutInitThread, hModule, 0, nullptr);
         };
-
         void RenderIt() {
             if (Hiden) return;
+            //ModsLoadedText key
+            if (ModsLoadedText::Showing)
+                ModsLoadedText::FadeOutCol = ImColor(255, 255, 254, 255);
+            else if (ModsLoadedText::FadeOutCol == ImColor(255, 255, 254, 255))
+                ImGuiMod::ModsLoadedText::FadeOut(100, 10, nullptr);
             ImGuiIO& io = ImGui::GetIO();
             ImGui::SetNextWindowPos(ImVec2(0, io.DisplaySize.y), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
             ImGui::Begin("BottomRightText", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBringToFrontOnFocus);
@@ -83,7 +84,6 @@ namespace ImGuiMod {
             ImGui::End();
         };
     }
-    
     namespace ShowInfoDialog {
 
         bool ShowPopup;
@@ -98,7 +98,9 @@ namespace ImGuiMod {
                 ShowPopup = false;
             }
 
-            ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ModalWindowDimBg, ImColor(0,0,0,120).Value);
+            ImGuiIO& io = ImGui::GetIO();
+            ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ModalWindowDimBg, ImColor(0,0,0,0).Value);
+            ImGui::SetNextWindowPos(ImVec2(0, io.DisplaySize.y), ImGuiCond_Always, ImVec2(-0.02f, 1.4f));
             if (ImGui::BeginPopupModal(
                 "Enable showing info?", NULL, 
                 ImGuiWindowFlags_::ImGuiWindowFlags_AlwaysAutoResize | 
@@ -113,7 +115,9 @@ namespace ImGuiMod {
 
                 ImGui::Separator();
 
-                if (ImGui::Button("Yes", {80, 19})) {
+                if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) ImGui::CloseCurrentPopup();
+
+                if (ImGui::Button("Yes", {80, 19}) || (GetAsyncKeyState(VK_RETURN) & 0x8000)) {
                     CreateInfoSettingFile(true);
                     ImGui::CloseCurrentPopup();
                 }
@@ -126,27 +130,28 @@ namespace ImGuiMod {
                 }
 
                 ImGui::EndPopup();
+
+                ModsLoadedText::Showing = true;
             }
         };
 
     }
-
     void RenderUI() {
         if (Hiden) return;
-        ModsLoadedText::RenderIt();
         ShowInfoDialog::RenderIt();
+        ModsLoadedText::RenderIt();
+        //ModsLoadedText key
+        if ((GetAsyncKeyState(VK_TAB) & 0x8000))
+            ModsLoadedText::Showing = true;
+        else if (ModsLoadedText::FadeOutCol == ImColor(255, 255, 254, 255))
+            ModsLoadedText::Showing = false;
     }
-
     void Init() {
         //setup
         ImGuiHook::setRenderFunction(RenderUI);
-        //hooks
         MH_Initialize();
-        ImGuiHook::Load([](void* target, void* hook, void** trampoline) {
-            HooksUtils::CreateHook(target, hook, trampoline);
-            });
+        ImGuiHook::setupHooks(HooksUtils::CreateHook);
     }
-
 };
 
 DWORD WINAPI LoadMods(void* hModule) {
@@ -196,3 +201,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     }
     return TRUE;
 }
+
+
+
+
+
+
+
+
+

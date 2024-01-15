@@ -9,7 +9,7 @@ cmake_policy(SET CMP0057 NEW)
 project ("ONEMR_Loader")
 set(developer "user95401")
 set(description "gd 2.2 mod that load dlls in all ur game directory")
-set(lib_output "D:\\Games\\user666\\Geometry Dash 2.202") # post build copy
+set(lib_output "D:\\Games\\user666\\Geometry Dash 2.204 PC [modloader]") # post build copy
 
 #curly-eureka
 set(GAME_VERSION "2.2")
